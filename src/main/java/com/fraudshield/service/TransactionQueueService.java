@@ -4,13 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fraudshield.dto.TransactionRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
-public class TransactionQueueService {
+@ConditionalOnProperty(name = "fraudshield.queue.mode", havingValue = "redis", matchIfMissing = true)
+public class TransactionQueueService implements QueuePublisher {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -22,6 +24,7 @@ public class TransactionQueueService {
         this.objectMapper = objectMapper;
     }
 
+    @Override
     public void enqueue(TransactionRequest request) {
         if (request.getTimestamp() == null) {
             request.setTimestamp(Instant.now());

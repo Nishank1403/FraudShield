@@ -1,7 +1,7 @@
 package com.fraudshield.controller;
 
 import com.fraudshield.dto.TransactionRequest;
-import com.fraudshield.service.TransactionQueueService;
+import com.fraudshield.service.QueuePublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,17 +12,17 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/simulate")
 public class SimulationController {
-    private final TransactionQueueService queueService;
+    private final QueuePublisher queuePublisher;
     private final Random random = new Random();
 
-    public SimulationController(TransactionQueueService queueService) {
-        this.queueService = queueService;
+    public SimulationController(QueuePublisher queuePublisher) {
+        this.queuePublisher = queuePublisher;
     }
 
     @PostMapping
     public ResponseEntity<String> simulate(@RequestParam(defaultValue = "10") int count) {
         for (int i = 0; i < count; i++) {
-            queueService.enqueue(randomTransaction());
+            queuePublisher.enqueue(randomTransaction());
         }
         return ResponseEntity.accepted().body("Queued " + count + " transactions");
     }

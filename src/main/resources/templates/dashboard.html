@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>FraudShield Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; background: #0b1020; color: #e6eaf2; }
+        h1 { margin-bottom: 8px; }
+        .subtitle { color: #b7c0d5; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; background: #111833; }
+        th, td { padding: 12px; border-bottom: 1px solid #1f2a4d; text-align: left; }
+        th { background: #141e3d; color: #a9b7d0; font-weight: 600; }
+        .flagged { color: #ff5f5f; font-weight: 600; }
+        .clean { color: #58d68d; font-weight: 600; }
+        .pill { padding: 4px 8px; border-radius: 999px; background: #1f2a4d; display: inline-block; }
+    </style>
+</head>
+<body>
+<h1>FraudShield Dashboard</h1>
+<div class="subtitle">Latest evaluated transactions</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Transaction</th>
+        <th>Score</th>
+        <th>Status</th>
+        <th>Latency</th>
+        <th>Reasons</th>
+        <th>Evaluated At</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="r : ${results}">
+        <td th:text="${r.transactionId}"></td>
+        <td><span class="pill" th:text="${r.riskScore}"></span></td>
+        <td>
+            <span th:class="${r.flagged} ? 'flagged' : 'clean'"
+                  th:text="${r.flagged} ? 'FLAGGED' : 'CLEAN'"></span>
+        </td>
+        <td th:text="${r.latencyMs} + ' ms'"></td>
+        <td th:text="${r.reasons}"></td>
+        <td th:text="${#temporals.format(r.evaluatedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

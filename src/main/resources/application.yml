@@ -8,6 +8,16 @@ spring:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: fraudshield-consumer
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 management:
   endpoints:
@@ -18,6 +28,9 @@ management:
 fraudshield:
   queue:
     key: "fraud:tx:queue"
+    mode: ${FRAUDSHIELD_QUEUE_MODE:redis}
+  kafka:
+    topic: "fraudshield-transactions"
   worker:
     poll-delay-ms: 50
   risk:

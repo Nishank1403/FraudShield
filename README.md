@@ -3,16 +3,20 @@
 Real-time fraud detection backend with asynchronous Redis-based processing, modular validation rules, and containerized deployment.
 
 ## Features
-- **Async event processing**: transactions are enqueued to Redis and evaluated by background workers.
+- **Async event processing**: transactions are enqueued to Redis (default) or Kafka (optional) and evaluated by background workers.
 - **Redis queues** for distributed processing.
+- **Kafka pipeline** for high‑throughput stream ingestion (optional).
 - **Modular validation rules** with configurable scoring.
 - **Sub-second evaluation** for high‑volume traffic.
 - **Observability** via Spring Boot Actuator endpoints.
+- **Dashboard UI** for recent evaluations.
 - **Sample generator** to test end‑to‑end flows.
 
 ## Tech Stack
 - Java 21, Spring Boot 3.x
 - Redis 7.x
+- Kafka (optional)
+- Thymeleaf dashboard
 - Docker / Docker Compose
 - AWS EC2 deployment guide
 
@@ -20,7 +24,7 @@ Real-time fraud detection backend with asynchronous Redis-based processing, modu
 
 ## Quick Start (Local)
 
-### 1) Run with Docker Compose
+### 1) Run with Docker Compose (Redis)
 ```bash
 docker compose up --build
 ```
@@ -62,11 +66,38 @@ curl http://localhost:8080/api/transactions/tx-1001
 
 ---
 
+## Dashboard
+Visit:
+```
+http://localhost:8080/dashboard
+```
+Shows the latest evaluated transactions with score, flagged status, and latency.
+
+---
+
 ## Sample Transaction Generator
-Generate random transactions and push them into Redis:
+Generate random transactions and push them into Redis/Kafka:
 ```bash
 curl -X POST "http://localhost:8080/api/simulate?count=100"
 ```
+
+---
+
+## Kafka Mode (Optional)
+Kafka is supported for high‑throughput event streaming.
+
+### Start Kafka stack
+```bash
+docker compose -f docker-compose.kafka.yml up --build
+```
+
+### Enable Kafka mode
+Set environment variable:
+```
+FRAUDSHIELD_QUEUE_MODE=kafka
+```
+
+The app will switch from Redis polling to Kafka consumers automatically.
 
 ---
 
@@ -74,18 +105,20 @@ curl -X POST "http://localhost:8080/api/simulate?count=100"
 - **POST** `/api/transactions` – enqueue a transaction for evaluation
 - **GET** `/api/transactions/{id}` – fetch evaluation result
 - **POST** `/api/simulate?count=N` – generate and enqueue sample transactions
+- **GET** `/dashboard` – dashboard UI
 - **GET** `/actuator/health` – service health
 
 ---
 
 ## Architecture Overview
 ```
-Client -> REST API -> Redis Queue -> Worker -> Fraud Rules -> Result Store
+Client -> REST API -> Redis/Kafka Queue -> Worker -> Fraud Rules -> Result Store
 ```
 
 **Key components**:
-- `TransactionQueueService`: pushes/pops events in Redis
-- `QueueWorker`: async processor consuming events
+- `TransactionQueueService`: Redis-backed queue
+- `KafkaQueuePublisher` + `KafkaQueueConsumer`: Kafka event pipeline
+- `QueueWorker`: async processor consuming Redis queue
 - `FraudDetectionService`: runs modular fraud rules
 - `TransactionResultStore`: in-memory result cache
 
