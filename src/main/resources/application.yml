@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: fraudshield
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics"
+
+fraudshield:
+  queue:
+    key: "fraud:tx:queue"
+  worker:
+    poll-delay-ms: 50
+  risk:
+    threshold: 70
