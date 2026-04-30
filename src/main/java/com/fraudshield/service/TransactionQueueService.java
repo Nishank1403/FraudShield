@@ -7,21 +7,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.time.Instant;
 
 @Service
 @ConditionalOnProperty(name = "fraudshield.queue.mode", havingValue = "redis", matchIfMissing = true)
 public class TransactionQueueService implements QueuePublisher {
+    
+    // Using <String, String> based on your original implementation
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Value("${fraudshield.queue.key}")
     private String queueKey;
 
-    public TransactionQueueService(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+    // Added @Qualifier here, while keeping both required dependencies
+    public TransactionQueueService(@Qualifier("redisTemplate") RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
+        this.objectMapper.findAndRegisterModules();
     }
 
     @Override
