@@ -75,6 +75,9 @@ Shows the latest evaluated transactions with score, flagged status, and latency.
 
 ---
 
+<img width="1918" height="858" alt="Screenshot 2026-04-29 184006" src="https://github.com/user-attachments/assets/3009218b-c680-421f-bd88-2fdb3b633783" />
+
+
 ## Sample Transaction Generator
 Generate random transactions and push them into Redis/Kafka:
 ```bash
